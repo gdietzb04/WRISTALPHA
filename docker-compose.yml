@@ -1,0 +1,70 @@
+name: wristalpha
+
+services:
+  db:
+    image: timescale/timescaledb:2.28.3-pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wristalpha}
+      POSTGRES_USER: ${POSTGRES_USER:-wristalpha}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["sh", "-c", "alembic upgrade head && uvicorn wristalpha.api:app --host 0.0.0.0 --port 8000"]
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      WRISTALPHA_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-wristalpha}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-wristalpha}
+      WRISTALPHA_CONFIG_PATH: /app/config/default.yaml
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "wristalpha.operations.scheduler"]
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      WRISTALPHA_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-wristalpha}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-wristalpha}
+      WRISTALPHA_CONFIG_PATH: /app/config/default.yaml
+    depends_on:
+      api:
+        condition: service_started
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    environment:
+      VITE_API_PROXY_TARGET: http://api:8000
+    ports:
+      - "127.0.0.1:5173:5173"
+
+volumes:
+  postgres_data:

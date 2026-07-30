@@ -1,0 +1,96 @@
+config_version: 1
+
+universe:
+  brands: []
+  references: []
+  maximum_listing_price:
+    value: null
+    currency: null
+    source: null
+    source_needed: "Set the investable-universe ceiling supplied by the user."
+
+portfolio:
+  next_purchase_budget:
+    value: null
+    currency: null
+    source: null
+    source_needed: "Set the user's budget and reporting currency."
+  holding_horizon: null
+  holdings: []
+
+alerts:
+  channel: null
+  destination_env_var: null
+
+costs:
+  marketplace_commission:
+    value: null
+    unit: "fraction"
+    source: null
+    source_needed: "Obtain the applicable marketplace fee schedule."
+  payment_or_escrow:
+    value: null
+    unit: "fraction"
+    source: null
+    source_needed: "Obtain the applicable payment or escrow fee schedule."
+  shipping:
+    value: null
+    unit: "currency"
+    source: null
+    source_needed: "Obtain an insured-shipping quote for the relevant route."
+  insurance:
+    value: null
+    unit: "currency"
+    source: null
+    source_needed: "Obtain the applicable insurance quote."
+  import_duty_or_vat:
+    value: null
+    unit: "fraction"
+    source: null
+    source_needed: "Determine tax treatment for buyer, seller, and route."
+  authentication:
+    value: null
+    unit: "currency"
+    source: null
+    source_needed: "Obtain the chosen authentication provider's fee."
+  servicing:
+    value: null
+    unit: "currency"
+    source: null
+    source_needed: "Obtain a reference-specific service estimate."
+  dealer_bid_ask_spread:
+    value: null
+    unit: "fraction"
+    source: null
+    source_needed: "Estimate from verified bids and realized transactions."
+
+sources:
+  licensed_api:
+    adapter: "licensed_api"
+    enabled: false
+    source_name: null
+    source: null
+    source_needed: "Provide licensed provider documentation and credentials."
+  html_template:
+    adapter: "html"
+    enabled: false
+    source_name: null
+    search_url: null
+    user_agent: null
+    selectors: null
+    source: null
+    source_needed: "[VERIFY AGAINST LIVE SOURCE] Supply URL, robots permission, and selectors."
+  manual_listings:
+    adapter: "csv"
+    enabled: true
+    source_name: "manual"
+    path: "/app/data/imports/listings.csv"
+    source: "User-maintained import file."
+    source_needed: null
+  manual_auctions:
+    adapter: "auction"
+    enabled: true
+    source_name: "verified-auctions"
+    path: "/app/data/imports/auctions.csv"
+    source: "User-maintained results from supported auction houses."
+    source_needed: null
