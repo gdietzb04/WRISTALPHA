@@ -13,11 +13,11 @@ authors = [{ name = "WRISTALPHA" }]
 dependencies = [
   "alembic>=1.14,<2",
   "apscheduler>=3.10,<4",
-  "arch>=7.2,<8",
+  "arch>=7.2,<9",
   "fastapi>=0.115,<1",
   "lightgbm>=4.5,<5",
   "numpy>=2.0,<3",
-  "pandas>=2.2,<3",
+  "pandas>=2.2,<4",
   "playwright>=1.49,<2",
   "polars>=1.17,<2",
   "psycopg[binary]>=3.2,<4",
