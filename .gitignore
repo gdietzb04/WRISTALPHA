@@ -1,4 +1,5 @@
 .env
+.wristalpha/
 .venv/
 .uv-cache/
 .uv-python/
