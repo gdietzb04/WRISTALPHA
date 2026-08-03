@@ -1,6 +1,7 @@
 .git
 .github
 .codebase-memory
+.wristalpha
 .venv
 .uv-cache
 .uv-python

@@ -8,6 +8,44 @@ tracks holdings, and gates recommendations and alerts behind statistical and dat
 Marketplace listings are biased asks, not transactions. Delisting is ambiguous and never becomes
 a sale automatically. Forecasts are statistical estimates, not investment advice.
 
+## Start
+
+On Windows, double-click **Start WRISTALPHA.cmd** or run:
+
+```powershell
+.\wristalpha.ps1 start
+```
+
+The launcher starts Docker Desktop when necessary, creates a protected local database secret on
+first use, pulls the GitHub-built images, verifies their build provenance, waits for every service
+to become healthy, and opens http://127.0.0.1:5173. It requires Docker Desktop and an authenticated
+GitHub CLI (`gh auth login`) so image attestations can be verified before execution.
+
+Common operations:
+
+```powershell
+.\wristalpha.ps1 status
+.\wristalpha.ps1 logs
+.\wristalpha.ps1 update
+.\wristalpha.ps1 stop
+```
+
+Use `.\wristalpha.ps1 rebuild` only when testing local source changes. Normal startup never builds
+images on your machine. Operational procedures and recovery guidance are in
+[docs/RUNBOOK.md](docs/RUNBOOK.md).
+
+## Security posture
+
+- API, database, and dashboard ports bind only to `127.0.0.1`.
+- Database credentials live in a Git-ignored, ACL-protected secret file and are mounted only into
+  services that need them.
+- Release images are built by SHA-pinned GitHub Actions, include SBOM/provenance metadata, and are
+  verified by the launcher before execution.
+- Application containers run without Linux capabilities, cannot gain privileges, and use
+  read-only root filesystems.
+- The launcher never deletes the database volume, weakens source blocking, fabricates
+  transactions, or overrides data-quality and model-actionability gates.
+
 ## Implemented phases
 
 - P0: reproducible Python/Node builds, Docker Compose, CI, strict linting and typing.
@@ -28,39 +66,32 @@ a sale automatically. Forecasts are statistical estimates, not investment advice
 - P8: scheduler, structured logging, loopback-only deployment, automatic migrations, CI, and the
   operations runbook.
 
-## Start locally
+## Manual imports
 
-1. Copy .env.example to .env and replace the placeholder with a long URL-safe local password.
-2. Keep unknown values null in config/default.yaml until a source is available.
-3. Start Docker Desktop.
-4. Run docker compose up --build -d.
-5. Open http://127.0.0.1:5173.
+Listing CSV required columns:
 
-The API health endpoint is http://127.0.0.1:8000/health. Operational procedures and recovery
-steps are in docs/RUNBOOK.md.
-
-## Manual listing CSV
-
-Required columns:
-
+```text
 source, external_id, fetched_at, title, price, currency, url
+```
 
-Optional columns:
+Optional listing columns:
 
+```text
 brand, reference_hint, production_year, condition, box, papers, seller_type, seller_country,
 vat_included, warranty_remaining_months, service_history, description
+```
 
-Timestamps require a UTC offset. Unknown values stay empty.
+Auction CSV required columns:
 
-## Manual auction CSV
-
-Required columns:
-
+```text
 auction_house, external_id, sold_at, realized_price, currency, source_url, title
+```
 
-Optional columns:
+Optional auction columns:
 
+```text
 hammer_price, buyer_premium, lot_number, sale_name, brand, reference_hint
+```
 
-Supported houses are Phillips, Christie's, Sotheby's, and Antiquorum. Values must come from
-verified result records; no fee or realized-price field is inferred.
+Supported auction houses are Phillips, Christie's, Sotheby's, and Antiquorum. Values must come
+from verified result records; no fee or realized-price field is inferred.
