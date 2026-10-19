@@ -1,4 +1,4 @@
-FROM node:22.13.1-alpine
+FROM node:26.12.0-alpine
 
 WORKDIR /app
 COPY package.json package-lock.json ./
